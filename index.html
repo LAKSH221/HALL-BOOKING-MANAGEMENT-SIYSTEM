@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hall Booking Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .border-container, .container { 
+            border: 5px solid #007bff; 
+            border-radius: 10px; 
+            margin: 20px auto; 
+            padding: 10px;  
+            max-width: 500px; 
+            background: lightgreen; 
+        }
+
+        #logo-container { 
+            background-image: url('https://gvgvc.ac.in/images/resource/about.jpg'); 
+            background-size: cover; 
+            background-position: center; 
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .logo-container img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        button { 
+            width: 100%; 
+            padding: 11px; 
+            margin: 10px 0; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 7px; 
+            cursor: pointer; 
+            font-size: 16px; 
+        }
+        button:hover { background-color: #0056b3; }
+        .container { display: none; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        .calendar-month { display: flex; flex-wrap: wrap; justify-content: center; }
+        .day { width: 50px; height: 50px; margin: 5px; text-align: center; line-height: 50px; background-color: white; border: 1px solid #ccc; cursor: pointer; }
+        .booked { background-color: green; color: white; cursor: not-allowed; }
+    </style>
+</head>
+<body>    
+    <div class="border-container" id="logo-container">
+        <h2>Sri G.V.G. Visalakshi College for Women</h2>
+        <div class="logo-container">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnRpMzOaQ9AhWaD8MZWYwmK5DXCh2msiwNBA&s" alt="GVG Logo">
+        </div>
+        <h2> Hall Booking Management System</h2>
+        <button onclick="showPage('registration-container')">Register</button>
+        <button onclick="showPage('login-container')">Login</button>
+        <button onclick="showPage('calendar-container')">Hall Availability</button>
+    </div>
+
+    <div class="container" id="registration-container">
+        <h2>Register</h2>
+        <label>Email:</label>
+        <input type="email" id="register-email">
+        <label>Password:</label>
+        <input type="password" id="register-password">
+        <button onclick="register()">Register</button>
+    </div>
+
+    <div class="container" id="login-container">
+        <h2>Login</h2>
+        <label>Email:</label>
+        <input type="email" id="login-email">
+        <label>Password:</label>
+        <input type="password" id="login-password">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <div class="container" id="booking-container">
+        <h2>Book a Hall</h2>
+        <label>Select Date:</label>
+        <input type="date" id="booking-date">
+        <label>Select Hall:</label>
+        <select id="booking-hall">
+            <option value="Conference 1">Conference 1</option>
+            <option value="Conference 2">Conference 2</option>
+        </select>
+        <label>Select Department:</label>
+        <select id="booking-department">
+            <option value="IT">Information Technology</option>
+            <option value="CS">Computer Science</option>
+            <option value="AI">Artificial Intelligence</option>
+            <option value="M">Maths</option>
+            <option value="Tamil">Tamil</option>
+        </select>
+        <button onclick="bookHall()">Book a Hall</button>
+    </div>
+
+    <div class="container" id="calendar-container">
+        <button onclick="showPage('logo-container')">Back to Home</button>
+        <h2>Hall Availability Calendar</h2>
+        <div id="calendar"></div>
+        <button onclick="showPage('logo-container')">Back to Home</button>
+    </div>
+
+    <script>
+        let bookings = {};
+
+        function showPage(pageId) {
+            document.querySelectorAll('.container, #logo-container').forEach(page => page.style.display = 'none');
+            document.getElementById(pageId).style.display = 'block';
+            if (pageId === 'calendar-container') generateCalendar();
+        }
+
+        function register() {
+            alert("Registration successful!");
+            showPage('login-container');
+        }
+
+        function login() {
+            alert("Login successful!");
+            showPage('booking-container');
+        }
+
+        function bookHall() {
+            let date = document.getElementById("booking-date").value;
+            let hall = document.getElementById("booking-hall").value;
+            let department = document.getElementById("booking-department").value;
+
+            if (!date || !hall || !department) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            if (!bookings[date]) bookings[date] = {};
+            if (bookings[date][hall]) {
+                alert(`Hall ${hall} is already booked on ${date} by ${bookings[date][hall]}.`);
+            } else {
+                bookings[date][hall] = department;
+                alert(`Hall ${hall} booked successfully on ${date} by ${department}!`);
+                showPage('calendar-container');
+            }
+        }
+
+        function generateCalendar() {
+            let calendar = document.getElementById("calendar");
+            calendar.innerHTML = "";
+            let currentDate = new Date();
+            for (let i = 0; i < 12; i++) {
+                let monthDiv = document.createElement("div");
+                let month = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
+                monthDiv.innerHTML = `<h3>${month.toLocaleString('default', { month: 'long', year: 'numeric' })}</h3>`;
+                let monthDays = document.createElement("div");
+                monthDays.classList.add("calendar-month");
+                let daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+                for (let d = 1; d <= daysInMonth; d++) {
+                    let dayDiv = document.createElement("div");
+                    let dateStr = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    dayDiv.classList.add("day");
+                    dayDiv.innerText = d;
+                    if (bookings[dateStr]) dayDiv.classList.add("booked");
+                    monthDays.appendChild(dayDiv);
+                }
+                monthDiv.appendChild(monthDays);
+                calendar.appendChild(monthDiv);
+            }
+        }
+    </script>
+</body>
+</html>
